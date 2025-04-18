@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Memory Profiling - tracemalloc Documentation</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for improved typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="light-mode">
+    <div class="container">
+        <!-- Improved Sidebar with Toggle Button -->
+        <div class="sidebar-container">
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        <i class="fas fa-memory"></i>
+                        <h2>tracemalloc</h2>
+                    </div>
+                    <div class="theme-toggle">
+                        <button id="theme-switch">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-search">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search documentation...">
+                    </div>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <h3>Getting Started</h3>
+                        <ul>
+                            <li><a href="#introduction" class="active"><i class="fas fa-home"></i> Introduction</a></li>
+                            <li><a href="#installation"><i class="fas fa-download"></i> Installation</a></li>
+                            <li><a href="#basic-usage"><i class="fas fa-play"></i> Basic Usage</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3>Core Concepts</h3>
+                        <ul>
+                            <li><a href="#features"><i class="fas fa-star"></i> Features</a></li>
+                            <li><a href="#snapshots"><i class="fas fa-camera"></i> Snapshots</a></li>
+                            <li><a href="#statistics"><i class="fas fa-chart-bar"></i> Statistics</a></li>
+                            <li><a href="#tracebacks"><i class="fas fa-route"></i> Tracebacks</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3>Advanced</h3>
+                        <ul>
+                            <li><a href="#best-practices"><i class="fas fa-award"></i> Best Practices</a></li>
+                            <li><a href="#examples"><i class="fas fa-code"></i> Code Examples</a></li>
+                            <li><a href="#troubleshooting"><i class="fas fa-bug"></i> Troubleshooting</a></li>
+                            <li><a href="#resources"><i class="fas fa-external-link-alt"></i> Resources</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <span>Python v3.13.3</span>
+                    <a href="#" class="feedback-btn">Feedback</a>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <header>
+                <h1>Python Memory Profiling with tracemalloc</h1>
+                <div class="breadcrumbs">
+                    <span>Python</span> &gt; 
+                    <span>Standard Library</span> &gt; 
+                    <span>Debugging</span> &gt; 
+                    <span>tracemalloc</span>
+                </div>
+            </header>
+
+            <div class="table-of-contents" id="toc">
+                <div class="toc-header">
+                    <h3>Contents</h3>
+                    <button class="toc-toggle" id="toc-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <ul class="toc-list">
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#installation">Installation & Setup</a></li>
+                    <li><a href="#basic-usage">Basic Usage</a></li>
+                    <li><a href="#features">Key Features</a></li>
+                    <li><a href="#snapshots">Working with Snapshots</a></li>
+                    <li><a href="#statistics">Memory Statistics</a></li>
+                    <li><a href="#examples">Code Examples</a></li>
+                    <li><a href="#resources">Resources</a></li>
+                </ul>
+            </div>
+
+            <section id="introduction">
+                <h2>What is tracemalloc?</h2>
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>
+                        <strong>Available since:</strong> Python 3.4 (PEP 454)
+                    </p>
+                </div>
+                <p>
+                    Tracemalloc is a powerful debugging tool included in Python's standard library that allows developers 
+                    to trace memory blocks allocated by Python programs. Unlike traditional memory profilers that only 
+                    show overall memory usage, tracemalloc provides detailed insights into <em>where</em> and <em>how</em> 
+                    memory is being allocated in your code.
+                </p>
+                <p>
+                    With tracemalloc, you can:
+                </p>
+                <ul class="feature-list">
+                    <li>Track where objects are created in your code</li>
+                    <li>Analyze memory usage patterns</li>
+                    <li>Compare memory snapshots to identify leaks</li>
+                    <li>View statistics on memory blocks by file and line number</li>
+                </ul>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <p>
+                    Since tracemalloc is part of the Python standard library, no additional installation is required. 
+                    However, to use it effectively, you need to enable it at the start of your program.
+                </p>
+                
+                <div class="tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" data-tab="tab1">Basic Setup</button>
+                        <button class="tab-btn" data-tab="tab2">Environment Variable</button>
+                        <button class="tab-btn" data-tab="tab3">Custom Configuration</button>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span>Python</span>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+<pre><code>import tracemalloc
+
+# Start tracing Python memory allocations
+tracemalloc.start()
+
+# Your code here
+# ...
+
+# Get the current snapshot
+snapshot = tracemalloc.take_snapshot()
+top_stats = snapshot.statistics('lineno')
+
+# Print statistics
+for stat in top_stats[:10]:
+    print(stat)</code></pre>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span>Environment Setup</span>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+<pre><code># Set environment variable before running your script
+# Linux/macOS
+export PYTHONTRACEMALLOC=1
+
+# Windows
+set PYTHONTRACEMALLOC=1
+
+# Then run your Python program
+python your_script.py</code></pre>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab3">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span>Advanced Setup</span>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+<pre><code>import tracemalloc
+
+# Start tracemalloc with custom parameters
+# The parameter 25 is the maximum number of frames 
+# to store in a traceback
+tracemalloc.start(25)
+
+# Get current size and peak
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage: {current / 1024}KB")
+print(f"Peak memory usage: {peak / 1024}KB")
+
+# Reset peak to current
+tracemalloc.reset_peak()
+
+# Stop tracking when done
+tracemalloc.stop()</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <p>
+                    The workflow for using tracemalloc typically follows these steps:
+                </p>
+                
+                <ol class="workflow-steps">
+                    <li>
+                        <span class="step-number">1</span>
+                        <div class="step-content">
+                            <h3>Start Tracing</h3>
+                            <p>Enable the tracemalloc module at the beginning of your program.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">2</span>
+                        <div class="step-content">
+                            <h3>Run Your Code</h3>
+                            <p>Execute the code you want to analyze for memory usage.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">3</span>
+                        <div class="step-content">
+                            <h3>Take Snapshots</h3>
+                            <p>Capture the memory state at specific points in execution.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">4</span>
+                        <div class="step-content">
+                            <h3>Analyze Results</h3>
+                            <p>Review statistics or compare snapshots to identify issues.</p>
+                        </div>
+                    </li>
+                </ol>
+                
+                <div class="expandable-section">
+                    <div class="expandable-header">
+                        <h3>Common Use Cases</h3>
+                        <button class="expand-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="expandable-content">
+                        <ul>
+                            <li><strong>Finding memory leaks</strong> - Identify objects that aren't being properly garbage collected</li>
+                            <li><strong>Optimizing memory usage</strong> - Discover which parts of your code consume the most memory</li>
+                            <li><strong>Debugging unexpected memory growth</strong> - Track down where memory is being allocated over time</li>
+                            <li><strong>Profiling memory-intensive applications</strong> - Understand memory patterns in data processing pipelines</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features">
+                <h2>Key Features</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Memory Allocation Tracking</h3>
+                        <p>Trace where objects are allocated with detailed tracebacks</p>
+                        <ul>
+                            <li>Pinpoint exact file and line numbers</li>
+                            <li>Track objects by size and count</li>
+                            <li>Filter by specific modules or files</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>Snapshot Capabilities</h3>
+                        <p>Capture memory states for analysis and comparison</p>
+                        <ul>
+                            <li>Take snapshots at different execution points</li>
+                            <li>Compare snapshots to detect memory changes</li>
+                            <li>Filter by specific criteria for focused analysis</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Memory Usage Statistics</h3>
+                        <p>Get comprehensive memory usage data</p>
+                        <ul>
+                            <li>Monitor current and peak memory usage</li>
+                            <li>View statistics by file, line, or category</li>
+                            <li>Track memory blocks by size distributions</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3>Debugging Utilities</h3>
+                        <p>Tools to help interpret memory data</p>
+                        <ul>
+                            <li>Format tracebacks similar to standard Python tracebacks</li>
+                            <li>Filter noise from system libraries</li>
+                            <li>Integrate with other debugging tools</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="snapshots">
+                <h2>Working with Snapshots</h2>
+                <p>
+                    Snapshots are a core concept in tracemalloc that allow you to capture the memory state at a specific point in time.
+                    By comparing snapshots taken at different times, you can identify memory leaks and understand memory usage patterns.
+                </p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Taking and Comparing Snapshots</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+<pre><code>import tracemalloc
+
+# Start tracing memory
+tracemalloc.start()
+
+# ... some initial code ...
+
+# Take a first snapshot
+snapshot1 = tracemalloc.take_snapshot()
+
+# ... more code that might cause memory changes ...
+
+# Take a second snapshot
+snapshot2 = tracemalloc.take_snapshot()
+
+# Compare snapshots
+top_stats = snapshot2.compare_to(snapshot1, 'lineno')
+
+print("Memory usage growth:")
+for stat in top_stats[:10]:
+    print(stat)</code></pre>
+                </div>
+                
+                <div class="note-box">
+                    <h4><i class="fas fa-lightbulb"></i> Pro Tip</h4>
+                    <p>
+                        When comparing snapshots, focus on the biggest differences first. 
+                        These are often the most likely candidates for memory leaks or optimization opportunities.
+                    </p>
+                </div>
+            </section>
+
+            <section id="statistics">
+                <h2>Memory Statistics</h2>
+                <p>
+                    Tracemalloc provides detailed statistics about memory usage in your application, helping you 
+                    understand where memory is being allocated and how it's being used.
+                </p>
+                
+                <div class="expandable-section">
+                    <div class="expandable-header">
+                        <h3>Available Statistics Methods</h3>
+                        <button class="expand-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>statistics('lineno')</code></td>
+                                        <td>Group by source file and line number</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>statistics('filename')</code></td>
+                                        <td>Group by source file</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>statistics('traceback')</code></td>
+                                        <td>Group by traceback</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>get_traced_memory()</code></td>
+                                        <td>Get current and peak memory usage</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>get_tracemalloc_memory()</code></td>
+                                        <td>Memory used by tracemalloc itself</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="examples">
+                <h2>Code Examples</h2>
+                
+                <div class="example-cards">
+                    <div class="example-card">
+                        <h3>Finding Memory Leaks</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Python</span>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+<pre><code>import tracemalloc
+import gc
+
+def detect_leaks():
+    tracemalloc.start()
+    
+    # Run a baseline collection
+    gc.collect()
+    
+    # Record the starting state
+    snapshot1 = tracemalloc.take_snapshot()
+    
+    # Run the code that might leak memory
+    potentially_leaky_function()
+    
+    # Force garbage collection to remove objects
+    # that are no longer referenced
+    gc.collect()
+    
+    # Take a second snapshot
+    snapshot2 = tracemalloc.take_snapshot()
+    
+    # Compare snapshots
+    top_stats = snapshot2.compare_to(snapshot1, 'lineno')
+    
+    print("Potential memory leaks:")
+    for stat in top_stats[:5]:
+        print(stat)
+
+def potentially_leaky_function():
+    # This is just a placeholder for your actual code
+    large_list = [0] * 1000000  # Allocate a large list
+    
+    # In a real leak, this object would be
+    # accidentally kept alive somewhere
+
+detect_leaks()</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <h3>Memory Usage Timeline</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Python</span>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+<pre><code>import tracemalloc
+import time
+
+# Start tracking memory
+tracemalloc.start()
+snapshots = []
+
+# Function to record a memory snapshot with timestamp
+def record_memory():
+    snapshot = tracemalloc.take_snapshot()
+    current, peak = tracemalloc.get_traced_memory()
+    snapshots.append((time.time(), current, snapshot))
+    return current
+
+# Record initial state
+record_memory()
+print("Initial memory:", snapshots[0][1] / 1024, "KB")
+
+# Record several points for analysis
+for i in range(3):
+    # Simulate work that uses memory
+    data = [object() for _ in range(100000)]
+    
+    # Record the memory at this point
+    current = record_memory()
+    print(f"Memory after step {i+1}:", current / 1024, "KB")
+    
+    # For the last iteration, keep the reference
+    # to prevent garbage collection
+    if i < 2:
+        del data  # Remove reference to allow cleanup
+
+# Print memory growth timeline
+print("\nMemory Timeline:")
+for i, (timestamp, memory, _) in enumerate(snapshots):
+    if i > 0:
+        prev_time, prev_mem = snapshots[i-1][0], snapshots[i-1][1]
+        time_diff = timestamp - prev_time
+        mem_diff = memory - prev_mem
+        print(f"Step {i}: {memory/1024:.2f} KB " + 
+              f"({mem_diff/1024:+.2f} KB in {time_diff:.2f}s)")</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="resources">
+                <h2>Resources</h2>
+                <div class="resource-cards">
+                    <div class="resource-card">
+                        <div class="card-badge">Official</div>
+                        <h3>Python Documentation</h3>
+                        <p>The comprehensive official documentation for the tracemalloc module in Python 3.13.3, updated April 2025.</p>
+                        <a href="https://docs.python.org/3/library/tracemalloc.html" class="btn">
+                            <i class="fas fa-external-link-alt"></i> Read More
+                        </a>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="card-badge">Tutorial</div>
+                        <h3>Memory Profiling Guide</h3>
+                        <p>A practical guide to memory profiling in Python using the standard library's tracemalloc module.</p>
+                        <a href="#" class="btn">
+                            <i class="fas fa-external-link-alt"></i> Read More
+                        </a>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="card-badge">Advanced</div>
+                        <h3>Fixing Memory Leaks</h3>
+                        <p>An in-depth guide on using tracemalloc for memory profiling to diagnose and fix memory leaks in Python applications.</p>
+                        <a href="#" class="btn">
+                            <i class="fas fa-external-link-alt"></i> Read More
+                        </a>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <div class="card-badge">Video</div>
+                        <h3>Memory Profiling in Python</h3>
+                        <p>A comprehensive video tutorial on understanding and fixing memory issues in Python using tracemalloc and other tools.</p>
+                        <a href="#" class="btn">
+                            <i class="fas fa-external-link-alt"></i> Watch
+                        </a>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="faq">
+                <h2>Frequently Asked Questions</h2>
+                
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h3>How much overhead does tracemalloc add?</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p>
+                                Tracemalloc adds some memory and CPU overhead to your application. The memory overhead depends 
+                                on the number of frames tracked per allocation and the number of tracked allocations. In general, 
+                                the overhead ranges from 5% to 20% depending on your application.
+                            </p>
+                            <p>
+                                Use <code>tracemalloc.get_tracemalloc_memory()</code> to see how much memory tracemalloc itself is using.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h3>Can tracemalloc track C extension memory usage?</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p>
+                                No, tracemalloc only tracks memory blocks allocated by Python itself. Memory allocated 
+                                by C extensions (like NumPy arrays using their own allocators) is not tracked unless the 
+                                extension explicitly uses Python's memory allocation APIs.
+                            </p>
+                            <p>
+                                For tracking memory in C extensions, consider external tools like Valgrind or Memory Profiler.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h3>How can I reduce the amount of traceback data collected?</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p>
+                                You can control the amount of traceback data collected in two ways:
+                            </p>
+                            <ol>
+                                <li>Limit the number of frames when starting tracemalloc: <code>tracemalloc.start(nframe=1)</code></li>
+                                <li>Filter traces when taking a snapshot: <code>snapshot.filter_traces(filters)</code></li>
+                            </ol>
+                            <p>
+                                Both approaches can significantly reduce memory overhead for large applications.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <footer>
+                <div class="footer-content">
+                    <div class="footer-nav">
+                        <a href="#introduction">Top</a>
+                        <a href="#installation">Installation</a>
+                        <a href="#features">Features</a>
+                        <a href="#resources">Resources</a>
+                    </div>
+                    <div class="footer-info">
+                        <p>Python tracemalloc Documentation</p>
+                        <p>Last updated: April 18, 2025</p>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Sidebar toggle functionality
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('sidebar-collapsed');
+            document.querySelector('.container').classList.toggle('sidebar-hidden');
+        });
+        
+        // Theme toggle functionality
+        document.getElementById('theme-switch').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-moon')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        });
+        
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons and panes
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding pane
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Expandable sections functionality
+        const expandButtons = document.querySelectorAll('.expand-btn');
+        expandButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const section = this.closest('.expandable-section');
+                section.classList.toggle('expanded');
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-chevron-down')) {
+                    icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                } else {
+                    icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                }
+            });
+        });
+        
+        // Accordion functionality
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const item = this.closest('.accordion-item');
+                item.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-chevron-down')) {
+                    icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                } else {
+                    icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                }
+            });
+        });
+        
+        // Table of contents toggle
+        document.getElementById('toc-toggle').addEventListener('click', function() {
+            document.getElementById('toc').classList.toggle('collapsed');
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-chevron-down')) {
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            } else {
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            }
+        });
+        
+        // Copy button functionality
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const codeBlock = this.closest('.code-block').querySelector('code');
+                const textArea = document.createElement('textarea');
+                textArea.value = codeBlock.textContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Show feedback
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
